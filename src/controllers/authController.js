@@ -145,10 +145,12 @@ async function signup(
         'OTP sent successfully'
     });
 
-  }catch(err){
+}catch(err){
 
-    next(err);
-  }
+  console.error('SIGNUP ERROR:', err);
+
+  next(err);
+}
 }
 
 /* VERIFY SIGNUP OTP */

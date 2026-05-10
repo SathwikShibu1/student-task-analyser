@@ -17,56 +17,62 @@ async function sendVerificationEmail(
   otp
 ) {
 
-  const info =
-    await transporter.sendMail({
+  try {
 
-      from:
-        process.env.MJ_SENDER,
+    const info =
+      await transporter.sendMail({
 
-      to:
-        user.email,
+        from:
+          process.env.MJ_SENDER,
 
-      subject:
-        'Student Task Analyser OTP',
+        to:
+          user.email,
 
-      html: `
+        subject:
+          'Student Task Analyser OTP',
 
-        <div style="font-family:Arial;padding:20px;">
+        html: `
 
-          <h2>
-            Email Verification
-          </h2>
+          <div style="font-family:Arial;padding:20px;">
 
-          <p>
-            Hello ${user.name}
-          </p>
+            <h2>Email Verification</h2>
 
-          <div style="
-            font-size:36px;
-            font-weight:800;
-            letter-spacing:8px;
-            color:#7c3aed;
-            background:#f3e8ff;
-            padding:18px;
-            border-radius:12px;
-            text-align:center;
-            margin:24px 0;
-          ">
-            ${otp}
+            <p>Hello ${user.name}</p>
+
+            <div style="
+              font-size:36px;
+              font-weight:800;
+              letter-spacing:8px;
+              color:#7c3aed;
+              background:#f3e8ff;
+              padding:18px;
+              border-radius:12px;
+              text-align:center;
+              margin:24px 0;
+            ">
+              ${otp}
+            </div>
+
+            <p>OTP expires in 10 minutes.</p>
+
           </div>
+        `
+      });
 
-          <p>
-            OTP expires in 10 minutes.
-          </p>
+    console.log(
+      'EMAIL SENT:',
+      info.response
+    );
 
-        </div>
-      `
-    });
+  } catch (err) {
 
-  console.log(
-    'EMAIL SENT:',
-    info.response
-  );
+    console.error(
+      'MAIL ERROR:',
+      err
+    );
+
+    throw err;
+  }
 }
 
 /* RESET PASSWORD OTP EMAIL */
@@ -76,56 +82,62 @@ async function sendPasswordResetEmail(
   otp
 ) {
 
-  const info =
-    await transporter.sendMail({
+  try {
 
-      from:
-        process.env.MJ_SENDER,
+    const info =
+      await transporter.sendMail({
 
-      to:
-        user.email,
+        from:
+          process.env.MJ_SENDER,
 
-      subject:
-        'Password Reset OTP',
+        to:
+          user.email,
 
-      html: `
+        subject:
+          'Password Reset OTP',
 
-        <div style="font-family:Arial;padding:20px;">
+        html: `
 
-          <h2>
-            Reset Password OTP
-          </h2>
+          <div style="font-family:Arial;padding:20px;">
 
-          <p>
-            Hello ${user.name}
-          </p>
+            <h2>Reset Password OTP</h2>
 
-          <div style="
-            font-size:36px;
-            font-weight:800;
-            letter-spacing:8px;
-            color:#7c3aed;
-            background:#f3e8ff;
-            padding:18px;
-            border-radius:12px;
-            text-align:center;
-            margin:24px 0;
-          ">
-            ${otp}
+            <p>Hello ${user.name}</p>
+
+            <div style="
+              font-size:36px;
+              font-weight:800;
+              letter-spacing:8px;
+              color:#7c3aed;
+              background:#f3e8ff;
+              padding:18px;
+              border-radius:12px;
+              text-align:center;
+              margin:24px 0;
+            ">
+              ${otp}
+            </div>
+
+            <p>OTP expires in 10 minutes.</p>
+
           </div>
+        `
+      });
 
-          <p>
-            OTP expires in 10 minutes.
-          </p>
+    console.log(
+      'RESET OTP SENT:',
+      info.response
+    );
 
-        </div>
-      `
-    });
+  } catch (err) {
 
-  console.log(
-    'RESET OTP SENT:',
-    info.response
-  );
+    console.error(
+      'RESET MAIL ERROR:',
+      err
+    );
+
+    throw err;
+  }
 }
 
 module.exports = {
