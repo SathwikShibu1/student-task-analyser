@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Verify OTP – Student Task Analyser
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/css/styles.css"
+  />
+</head>
+
+<body class="auth-page">
+
+  <div class="auth-card">
+
+    <div class="auth-logo">
+
+      <div class="logo-icon">
+        🔐
+      </div>
+
+      <h1>
+        Verify OTP
+      </h1>
+
+      <p>
+        Enter the 6-digit code sent to your email.
+      </p>
+
+    </div>
+
+    <div
+      id="error-msg"
+      class="alert alert-error"
+    ></div>
+
+    <form id="otp-form">
+
+      <div class="form-group">
+
+        <label for="otp">
+          OTP Code
+        </label>
+
+        <input
+          type="text"
+          id="otp"
+          placeholder="Enter 6-digit OTP"
+          maxlength="6"
+          required
+        />
+
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        id="submit-btn"
+      >
+        Verify OTP
+      </button>
+
+    </form>
+
+    <p
+      style="
+        text-align:center;
+        margin-top:1rem;
+        font-size:0.9rem;
+        color:var(--muted);
+      "
+    >
+      Wrong email?
+
+      <a href="/signup.html">
+        Sign up again
+      </a>
+    </p>
+
+  </div>
+<script src="/js/auth/verifyOtp.js"></script>
+
+</body>
+</html>

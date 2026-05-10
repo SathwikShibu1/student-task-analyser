@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Profile – Student Task Analyser
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/css/styles.css"
+  />
+
+</head>
+
+<body>
+
+<div class="profile-page">
+
+  <!-- TOPBAR -->
+  <header class="profile-topbar">
+
+    <a
+      href="/dashboard.html"
+      class="back-btn"
+    >
+      ← Back
+    </a>
+
+    <h1>
+      My Profile
+    </h1>
+
+  </header>
+
+  <!-- PROFILE CARD -->
+  <section class="profile-hero">
+
+    <div
+      class="profile-avatar"
+      id="profile-avatar"
+    >
+      G
+    </div>
+
+    <h2 id="profile-name">
+      Loading...
+    </h2>
+
+    <p id="profile-email">
+      loading@email.com
+    </p>
+
+    <div class="profile-badge">
+
+      🔥 Productivity Explorer
+
+    </div>
+
+  </section>
+
+  <!-- STATS -->
+  <section class="profile-stats">
+
+    <div class="profile-stat-card">
+
+      <strong id="profile-total">
+        0
+      </strong>
+
+      <span>
+        Total Tasks
+      </span>
+
+    </div>
+
+    <div class="profile-stat-card">
+
+      <strong id="profile-completed">
+        0
+      </strong>
+
+      <span>
+        Completed
+      </span>
+
+    </div>
+
+    <div class="profile-stat-card">
+
+      <strong id="profile-focus">
+        0h
+      </strong>
+
+      <span>
+        Focus Time
+      </span>
+
+    </div>
+
+  </section>
+
+  <!-- ACCOUNT -->
+  <section class="profile-section">
+
+    <h3>
+      Account Details
+    </h3>
+
+    <div class="profile-info">
+
+      <div class="profile-row">
+
+        <label>
+          Full Name
+        </label>
+
+        <input
+          type="text"
+          id="edit-name"
+        />
+
+      </div>
+
+      <div class="profile-row">
+
+        <label>
+          Email
+        </label>
+
+        <input
+          type="email"
+          id="edit-email"
+          disabled
+        />
+
+      </div>
+
+    </div>
+
+    <button
+      class="btn btn-primary"
+      id="save-profile"
+    >
+      Save Changes
+    </button>
+
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="profile-section">
+
+    <h3>
+      Preferences
+    </h3>
+
+    <div class="settings-grid">
+
+      <button
+        class="setting-btn"
+        id="theme-toggle"
+      >
+        🌙 Toggle Theme
+      </button>
+
+      <button
+        class="setting-btn danger"
+        id="logout-btn"
+      >
+        🚪 Logout
+      </button>
+
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+
+const user =
+  JSON.parse(
+    localStorage.getItem('user')
+  );
+
+if (!user) {
+
+  window.location.href =
+    '/login.html';
+}
+
+document.getElementById(
+  'profile-name'
+).textContent =
+  user.name || 'User';
+
+document.getElementById(
+  'profile-email'
+).textContent =
+  user.email || '';
+
+document.getElementById(
+  'edit-name'
+).value =
+  user.name || '';
+
+document.getElementById(
+  'edit-email'
+).value =
+  user.email || '';
+
+document.getElementById(
+  'profile-avatar'
+).textContent =
+  user.name
+    ?.charAt(0)
+    ?.toUpperCase()
+  || 'U';
+
+/* THEME */
+
+function applyTheme(dark) {
+
+  document.documentElement.setAttribute(
+    'data-theme',
+    dark ? 'dark' : ''
+  );
+
+  localStorage.setItem(
+    'theme',
+    dark ? 'dark' : ''
+  );
+}
+
+applyTheme(
+  localStorage.getItem('theme')
+  === 'dark'
+);
+
+document
+  .getElementById(
+    'theme-toggle'
+  )
+  .addEventListener(
+    'click',
+    () => {
+
+      const isDark =
+        document.documentElement
+          .getAttribute(
+            'data-theme'
+          ) === 'dark';
+
+      applyTheme(!isDark);
+    }
+  );
+
+/* LOGOUT */
+
+document
+  .getElementById(
+    'logout-btn'
+  )
+  .addEventListener(
+    'click',
+    async () => {
+
+      await fetch(
+        '/api/auth/logout',
+        {
+          method: 'POST',
+          credentials: 'include'
+        }
+      );
+
+      localStorage.clear();
+
+      window.location.href =
+        '/login.html';
+    }
+  );
+
+/* SAVE */
+
+document
+  .getElementById(
+    'save-profile'
+  )
+  .addEventListener(
+    'click',
+    () => {
+
+      const updatedName =
+        document
+          .getElementById(
+            'edit-name'
+          )
+          .value;
+
+      user.name =
+        updatedName;
+
+      localStorage.setItem(
+        'user',
+        JSON.stringify(user)
+      );
+
+      alert(
+        'Profile updated'
+      );
+
+      location.reload();
+    }
+  );
+
+/* TASK STATS */
+
+async function loadStats() {
+
+  try {
+
+    const res =
+      await fetch(
+        '/api/tasks',
+        {
+          credentials: 'include'
+        }
+      );
+
+    const data =
+      await res.json();
+
+    const tasks =
+      data.tasks || [];
+
+    document.getElementById(
+      'profile-total'
+    ).textContent =
+      tasks.length;
+
+    document.getElementById(
+      'profile-completed'
+    ).textContent =
+      tasks.filter(
+        t => t.status === 'Completed'
+      ).length;
+
+    const totalMs =
+      tasks.reduce(
+        (acc,task) =>
+          acc +
+          (task.accumulatedTime || 0),
+        0
+      );
+
+    const hours =
+      (
+        totalMs / 1000 / 60 / 60
+      ).toFixed(1);
+
+    document.getElementById(
+      'profile-focus'
+    ).textContent =
+      `${hours}h`;
+
+  } catch (err) {
+
+    console.error(err);
+  }
+}
+
+loadStats();
+
+</script>
+
+</body>
+</html>
