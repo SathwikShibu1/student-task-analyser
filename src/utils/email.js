@@ -1,19 +1,16 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: 'in-v3.mailjet.com',
-  port: 587,
-  secure: false,
+
+  service: 'Mailjet',
 
   auth: {
     user: process.env.MJ_APIKEY_PUBLIC,
     pass: process.env.MJ_APIKEY_PRIVATE
-  },
-
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000
+  }
 });
+
+/* SIGNUP OTP EMAIL */
 
 async function sendVerificationEmail(
   user,
@@ -44,19 +41,19 @@ async function sendVerificationEmail(
             Hello ${user.name}
           </p>
 
-     <div style="
-  font-size:36px;
-  font-weight:800;
-  letter-spacing:8px;
-  color:#7c3aed;
-  background:#f3e8ff;
-  padding:18px;
-  border-radius:12px;
-  text-align:center;
-  margin:24px 0;
-">
-  ${otp}
-</div>
+          <div style="
+            font-size:36px;
+            font-weight:800;
+            letter-spacing:8px;
+            color:#7c3aed;
+            background:#f3e8ff;
+            padding:18px;
+            border-radius:12px;
+            text-align:center;
+            margin:24px 0;
+          ">
+            ${otp}
+          </div>
 
           <p>
             OTP expires in 10 minutes.
@@ -71,6 +68,9 @@ async function sendVerificationEmail(
     info.response
   );
 }
+
+/* RESET PASSWORD OTP EMAIL */
+
 async function sendPasswordResetEmail(
   user,
   otp
@@ -100,19 +100,19 @@ async function sendPasswordResetEmail(
             Hello ${user.name}
           </p>
 
-<div style="
-  font-size:36px;
-  font-weight:800;
-  letter-spacing:8px;
-  color:#7c3aed;
-  background:#f3e8ff;
-  padding:18px;
-  border-radius:12px;
-  text-align:center;
-  margin:24px 0;
-">
-  ${otp}
-</div>
+          <div style="
+            font-size:36px;
+            font-weight:800;
+            letter-spacing:8px;
+            color:#7c3aed;
+            background:#f3e8ff;
+            padding:18px;
+            border-radius:12px;
+            text-align:center;
+            margin:24px 0;
+          ">
+            ${otp}
+          </div>
 
           <p>
             OTP expires in 10 minutes.
@@ -127,6 +127,7 @@ async function sendPasswordResetEmail(
     info.response
   );
 }
+
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail
