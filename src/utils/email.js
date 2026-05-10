@@ -1,21 +1,19 @@
 const nodemailer = require('nodemailer');
 
-const transporter =
-  nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
+  host: 'in-v3.mailjet.com',
+  port: 587,
+  secure: false,
 
-    host: 'in-v3.mailjet.com',
+  auth: {
+    user: process.env.MJ_APIKEY_PUBLIC,
+    pass: process.env.MJ_APIKEY_PRIVATE
+  },
 
-    port: 587,
-
-    auth: {
-
-      user:
-        process.env.MJ_APIKEY_PUBLIC,
-
-      pass:
-        process.env.MJ_APIKEY_PRIVATE
-    }
-  });
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000
+});
 
 async function sendVerificationEmail(
   user,
