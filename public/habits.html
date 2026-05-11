@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habit Tracker – Student Task Analyser</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📚</div>
+      <span>TaskAnalyser</span>
+    </div>
+    <nav>
+      <a href="/dashboard.html" class="nav-link">🏠 Dashboard</a>
+      <a href="#" class="nav-link" id="add-task-link-nav" onclick="return false;">➕ Add Task</a>
+      <a href="/habits.html" class="nav-link active">✅ Habits</a>
+      <a href="/timetable.html" class="nav-link">🗓 Timetable</a>
+      <a href="/profile.html" class="nav-link">👤 Profile</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-info">
+        <div class="user-avatar" id="avatar">?</div>
+        <span class="user-name" id="user-name">User</span>
+      </div>
+      <a href="#" class="nav-link" id="logout-btn">🚪 Logout</a>
+      <button class="theme-toggle" id="theme-toggle">🌙</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger">☰</button>
+        <div>
+          <h1>Habit Tracker</h1>
+          <p id="today-date">Track your daily study habits.</p>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="add-habit-btn">➕ Add Habit</button>
+    </header>
+
+    <!-- STREAK SUMMARY -->
+    <section class="quick-stats" style="margin-bottom:1.1rem;">
+      <div class="mini-stat">
+        <span>✅</span>
+        <div><strong id="done-today">0</strong><small>Done Today</small></div>
+      </div>
+      <div class="mini-stat">
+        <span>📋</span>
+        <div><strong id="total-habits">0</strong><small>Total Habits</small></div>
+      </div>
+      <div class="mini-stat">
+        <span>🔥</span>
+        <div><strong id="best-streak">0</strong><small>Best Streak</small></div>
+      </div>
+      <div class="mini-stat">
+        <span>📈</span>
+        <div><strong id="completion-rate">0%</strong><small>Today's Rate</small></div>
+      </div>
+    </section>
+
+    <!-- HABITS GRID -->
+    <div id="habits-container" class="habits-grid"></div>
+
+    <!-- EMPTY STATE -->
+    <div id="habits-empty" class="empty-state" style="display:none;">
+      <div class="empty-icon">🌱</div>
+      <h3>No habits yet</h3>
+      <p style="margin-top:0.5rem;font-size:0.85rem;">Add your first habit to start tracking!</p>
+      <button class="btn btn-primary" style="margin-top:1rem;" onclick="openAddHabit()">➕ Add First Habit</button>
+    </div>
+
+    <!-- WEEKLY VIEW -->
+    <div class="study-card" style="margin-top:1rem;" id="weekly-section">
+      <div class="study-card-header">
+        <h3>📅 This Week</h3>
+      </div>
+      <div id="weekly-grid" class="habit-weekly-grid"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ADD/EDIT HABIT MODAL -->
+<div class="modal-overlay" id="habit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="habit-modal-title">Add Habit</h3>
+      <button class="modal-close" onclick="closeHabitModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Habit Name *</label>
+      <input type="text" id="habit-name" placeholder="e.g. Read textbook for 30 mins" />
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="habit-category">
+        <option value="study">📖 Study</option>
+        <option value="health">💪 Health</option>
+        <option value="mindset">🧠 Mindset</option>
+        <option value="other">⭐ Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Goal (times per day)</label>
+      <input type="number" id="habit-goal" value="1" min="1" max="10" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeHabitModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveHabit()">Save Habit</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="modal-overlay" id="habit-delete-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Delete Habit?</h3>
+      <button class="modal-close" onclick="closeDeleteHabit()">✕</button>
+    </div>
+    <p style="color:var(--muted);margin-bottom:1rem;">This will remove the habit and all its history.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDeleteHabit()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDeleteHabit()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Safe store ── */
+const store = {
+  get(k)    { try { return localStorage.getItem(k); }    catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); }        catch { } },
+  remove(k) { try { localStorage.removeItem(k); }        catch { } }
+};
+
+/* ── Theme ── */
+if (store.get('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+const themeBtn = document.getElementById('theme-toggle');
+if (themeBtn) {
+  themeBtn.textContent = store.get('theme') === 'dark' ? '☀️' : '🌙';
+  themeBtn.addEventListener('click', () => {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+    store.set('theme', dark ? '' : 'dark');
+    themeBtn.textContent = dark ? '🌙' : '☀️';
+  });
+}
+
+/* ── User ── */
+try {
+  const u = JSON.parse(store.get('user') || '{}');
+  if (u.name) {
+    document.getElementById('user-name').textContent = u.name;
+    document.getElementById('avatar').textContent    = u.name.charAt(0).toUpperCase();
+  }
+} catch {}
+
+/* ── Auth check ── */
+fetch('/api/user/profile', { credentials: 'include' })
+  .then(r => { if (!r.ok) window.location.href = '/login.html'; })
+  .catch(() => window.location.href = '/login.html');
+
+/* ── Logout ── */
+document.getElementById('logout-btn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  store.remove('user');
+  window.location.href = '/login.html';
+});
+
+/* ── Mobile sidebar ── */
+const hamburger = document.getElementById('hamburger');
+if (hamburger) hamburger.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && !hamburger.contains(e.target)) sb.classList.remove('open');
+});
+
+/* ════════════════════════════
+   HABIT DATA
+════════════════════════════ */
+const HABITS_KEY    = 'habits_v1';
+const HISTORY_KEY   = 'habits_history_v1';
+const CAT_ICONS     = { study: '📖', health: '💪', mindset: '🧠', other: '⭐' };
+let editingHabitId  = null;
+let deletingHabitId = null;
+
+function getHabits()  { try { return JSON.parse(store.get(HABITS_KEY) || '[]'); } catch { return []; } }
+function saveHabits(h){ store.set(HABITS_KEY, JSON.stringify(h)); }
+function getHistory() { try { return JSON.parse(store.get(HISTORY_KEY) || '{}'); } catch { return {}; } }
+function saveHistory(h){ store.set(HISTORY_KEY, JSON.stringify(h)); }
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getLast7Days() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+  return days;
+}
+
+function getStreak(habitId) {
+  const history = getHistory();
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (history[key] && history[key][habitId]) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return streak;
+}
+
+/* ── Date display ── */
+document.getElementById('today-date').textContent =
+  new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+/* ── Render ── */
+function render() {
+  const habits  = getHabits();
+  const history = getHistory();
+  const today   = todayKey();
+  const todayH  = history[today] || {};
+
+  const container = document.getElementById('habits-container');
+  const emptyEl   = document.getElementById('habits-empty');
+  const weeklyEl  = document.getElementById('weekly-section');
+
+  if (!habits.length) {
+    container.innerHTML = '';
+    emptyEl.style.display  = 'block';
+    weeklyEl.style.display = 'none';
+  } else {
+    emptyEl.style.display  = 'none';
+    weeklyEl.style.display = 'block';
+
+    container.innerHTML = habits.map(h => {
+      const done    = todayH[h.id] || 0;
+      const goal    = h.goal || 1;
+      const pct     = Math.min(100, Math.round((done / goal) * 100));
+      const streak  = getStreak(h.id);
+      const complete = done >= goal;
+      return `
+        <div class="habit-card${complete ? ' habit-done' : ''}">
+          <div class="habit-top">
+            <div class="habit-icon">${CAT_ICONS[h.category] || '⭐'}</div>
+            <div class="habit-info">
+              <strong>${h.name}</strong>
+              <small>${done}/${goal} today · 🔥 ${streak} day streak</small>
+            </div>
+            <div class="habit-menu">
+              <button class="habit-menu-btn" onclick="editHabit('${h.id}')">✏️</button>
+              <button class="habit-menu-btn danger" onclick="openDeleteHabit('${h.id}')">🗑</button>
+            </div>
+          </div>
+          <div class="habit-progress-bar">
+            <div class="habit-progress-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="habit-actions">
+            ${complete
+              ? `<div class="habit-complete-badge">✅ Completed!</div>`
+              : `<button class="btn btn-success btn-sm" onclick="logHabit('${h.id}')">✓ Mark Done</button>`
+            }
+            ${done > 0 ? `<button class="btn btn-secondary btn-sm" onclick="undoHabit('${h.id}')">↩ Undo</button>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    renderWeekly(habits, history);
+  }
+
+  // Stats
+  const done  = habits.filter(h => (todayH[h.id] || 0) >= (h.goal || 1)).length;
+  const rate  = habits.length ? Math.round((done / habits.length) * 100) : 0;
+  const best  = habits.reduce((max, h) => Math.max(max, getStreak(h.id)), 0);
+  document.getElementById('done-today').textContent    = done;
+  document.getElementById('total-habits').textContent  = habits.length;
+  document.getElementById('best-streak').textContent   = best;
+  document.getElementById('completion-rate').textContent = rate + '%';
+}
+
+function renderWeekly(habits, history) {
+  const days = getLast7Days();
+  const grid = document.getElementById('weekly-grid');
+  const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  grid.innerHTML = `
+    <div class="habit-week-header">
+      <div class="habit-week-label">Habit</div>
+      ${days.map(d => {
+        const dt = new Date(d + 'T00:00:00');
+        return `<div class="habit-week-day">${dayLabels[dt.getDay()]}<br><small>${dt.getDate()}</small></div>`;
+      }).join('')}
+    </div>
+    ${habits.map(h => `
+      <div class="habit-week-row">
+        <div class="habit-week-label">${CAT_ICONS[h.category]} ${h.name}</div>
+        ${days.map(d => {
+          const done = (history[d] && history[d][h.id]) || 0;
+          const complete = done >= (h.goal || 1);
+          return `<div class="habit-week-cell ${complete ? 'done' : done > 0 ? 'partial' : ''}"></div>`;
+        }).join('')}
+      </div>`).join('')}`;
+}
+
+/* ── Log / Undo ── */
+function logHabit(id) {
+  const history = getHistory();
+  const today   = todayKey();
+  if (!history[today]) history[today] = {};
+  history[today][id] = (history[today][id] || 0) + 1;
+  saveHistory(history);
+  render();
+}
+
+function undoHabit(id) {
+  const history = getHistory();
+  const today   = todayKey();
+  if (history[today] && history[today][id] > 0) {
+    history[today][id]--;
+    if (!history[today][id]) delete history[today][id];
+    saveHistory(history);
+  }
+  render();
+}
+
+/* ── Add/Edit modal ── */
+function openAddHabit() {
+  editingHabitId = null;
+  document.getElementById('habit-modal-title').textContent = 'Add Habit';
+  document.getElementById('habit-name').value     = '';
+  document.getElementById('habit-category').value = 'study';
+  document.getElementById('habit-goal').value     = '1';
+  document.getElementById('habit-modal').classList.add('open');
+}
+
+function editHabit(id) {
+  const h = getHabits().find(x => x.id === id);
+  if (!h) return;
+  editingHabitId = id;
+  document.getElementById('habit-modal-title').textContent = 'Edit Habit';
+  document.getElementById('habit-name').value     = h.name;
+  document.getElementById('habit-category').value = h.category;
+  document.getElementById('habit-goal').value     = h.goal || 1;
+  document.getElementById('habit-modal').classList.add('open');
+}
+
+function closeHabitModal() { document.getElementById('habit-modal').classList.remove('open'); }
+
+function saveHabit() {
+  const name     = document.getElementById('habit-name').value.trim();
+  const category = document.getElementById('habit-category').value;
+  const goal     = parseInt(document.getElementById('habit-goal').value) || 1;
+  if (!name) { alert('Please enter a habit name'); return; }
+
+  const habits = getHabits();
+  if (editingHabitId) {
+    const i = habits.findIndex(h => h.id === editingHabitId);
+    if (i > -1) { habits[i].name = name; habits[i].category = category; habits[i].goal = goal; }
+  } else {
+    habits.push({ id: Date.now().toString(), name, category, goal, createdAt: new Date().toISOString() });
+  }
+  saveHabits(habits);
+  closeHabitModal();
+  render();
+}
+
+/* ── Delete ── */
+function openDeleteHabit(id) {
+  deletingHabitId = id;
+  document.getElementById('habit-delete-modal').classList.add('open');
+}
+function closeDeleteHabit() { document.getElementById('habit-delete-modal').classList.remove('open'); }
+function confirmDeleteHabit() {
+  const habits = getHabits().filter(h => h.id !== deletingHabitId);
+  saveHabits(habits);
+  closeDeleteHabit();
+  render();
+}
+
+/* ── Init ── */
+document.getElementById('add-habit-btn').addEventListener('click', openAddHabit);
+render();
+</script>
+</body>
+</html>

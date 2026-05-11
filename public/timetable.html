@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timetable – Student Task Analyser</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📚</div>
+      <span>TaskAnalyser</span>
+    </div>
+    <nav>
+      <a href="/dashboard.html" class="nav-link">🏠 Dashboard</a>
+      <a href="#" class="nav-link" onclick="return false;">➕ Add Task</a>
+      <a href="/habits.html" class="nav-link">✅ Habits</a>
+      <a href="/timetable.html" class="nav-link active">🗓 Timetable</a>
+      <a href="/profile.html" class="nav-link">👤 Profile</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-info">
+        <div class="user-avatar" id="avatar">?</div>
+        <span class="user-name" id="user-name">User</span>
+      </div>
+      <a href="#" class="nav-link" id="logout-btn">🚪 Logout</a>
+      <button class="theme-toggle" id="theme-toggle">🌙</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger">☰</button>
+        <div>
+          <h1>Study Timetable</h1>
+          <p>Plan your weekly study schedule.</p>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="add-slot-btn">➕ Add Slot</button>
+    </header>
+
+    <!-- STATS -->
+    <section class="quick-stats" style="margin-bottom:1.1rem;">
+      <div class="mini-stat">
+        <span>📅</span>
+        <div><strong id="total-slots">0</strong><small>Total Slots</small></div>
+      </div>
+      <div class="mini-stat">
+        <span>⏱</span>
+        <div><strong id="total-hours">0h</strong><small>Planned Hours</small></div>
+      </div>
+      <div class="mini-stat">
+        <span>📚</span>
+        <div><strong id="subjects-count">0</strong><small>Subjects</small></div>
+      </div>
+      <div class="mini-stat">
+        <span>📋</span>
+        <div><strong id="today-slots">0</strong><small>Today's Slots</small></div>
+      </div>
+    </section>
+
+    <!-- TIMETABLE GRID -->
+    <div class="tt-wrapper">
+      <div class="tt-grid" id="tt-grid"></div>
+    </div>
+
+    <!-- TODAY'S SCHEDULE -->
+    <div class="study-card" style="margin-top:1rem;">
+      <div class="study-card-header">
+        <h3 id="today-schedule-title">📋 Today's Schedule</h3>
+      </div>
+      <div id="today-schedule" class="study-list">
+        <div class="study-empty">Nothing scheduled for today</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ADD/EDIT SLOT MODAL -->
+<div class="modal-overlay" id="slot-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="slot-modal-title">Add Study Slot</h3>
+      <button class="modal-close" onclick="closeSlotModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Subject *</label>
+      <input type="text" id="slot-subject" placeholder="e.g. Mathematics" />
+    </div>
+    <div class="form-group">
+      <label>Day *</label>
+      <select id="slot-day">
+        <option value="0">Sunday</option>
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Start Time *</label>
+      <input type="time" id="slot-start" value="09:00" />
+    </div>
+    <div class="form-group">
+      <label>End Time *</label>
+      <input type="time" id="slot-end" value="10:00" />
+    </div>
+    <div class="form-group">
+      <label>Color</label>
+      <div class="color-picker" id="color-picker">
+        <div class="color-opt selected" data-color="#7c5cff" style="background:#7c5cff"></div>
+        <div class="color-opt" data-color="#4f8bff" style="background:#4f8bff"></div>
+        <div class="color-opt" data-color="#10d97e" style="background:#10d97e"></div>
+        <div class="color-opt" data-color="#ffbb33" style="background:#ffbb33"></div>
+        <div class="color-opt" data-color="#ff4f6a" style="background:#ff4f6a"></div>
+        <div class="color-opt" data-color="#c084fc" style="background:#c084fc"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="slot-notes" placeholder="Optional note..." />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSlotModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSlot()">Save Slot</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="slot-delete-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Delete Slot?</h3>
+      <button class="modal-close" onclick="closeDeleteSlot()">✕</button>
+    </div>
+    <p style="color:var(--muted);margin-bottom:1rem;">This slot will be removed from your timetable.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDeleteSlot()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDeleteSlot()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const store = {
+  get(k)    { try { return localStorage.getItem(k); }    catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); }        catch { } },
+  remove(k) { try { localStorage.removeItem(k); }        catch { } }
+};
+
+/* Theme */
+if (store.get('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+const themeBtn = document.getElementById('theme-toggle');
+if (themeBtn) {
+  themeBtn.textContent = store.get('theme') === 'dark' ? '☀️' : '🌙';
+  themeBtn.addEventListener('click', () => {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+    store.set('theme', dark ? '' : 'dark');
+    themeBtn.textContent = dark ? '🌙' : '☀️';
+  });
+}
+
+/* User */
+try {
+  const u = JSON.parse(store.get('user') || '{}');
+  if (u.name) { document.getElementById('user-name').textContent = u.name; document.getElementById('avatar').textContent = u.name.charAt(0).toUpperCase(); }
+} catch {}
+
+/* Auth */
+fetch('/api/user/profile', { credentials: 'include' }).then(r => { if (!r.ok) window.location.href = '/login.html'; }).catch(() => window.location.href = '/login.html');
+
+/* Logout */
+document.getElementById('logout-btn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  store.remove('user');
+  window.location.href = '/login.html';
+});
+
+/* Mobile sidebar */
+const hamburger = document.getElementById('hamburger');
+if (hamburger) hamburger.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.addEventListener('click', (e) => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && hamburger && !hamburger.contains(e.target)) sb.classList.remove('open');
+});
+
+/* ════════════════════════════
+   TIMETABLE DATA
+════════════════════════════ */
+const TT_KEY     = 'timetable_v1';
+const DAYS       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let editingSlotId  = null;
+let deletingSlotId = null;
+let selectedColor  = '#7c5cff';
+
+function getSlots()  { try { return JSON.parse(store.get(TT_KEY) || '[]'); } catch { return []; } }
+function saveSlots(s){ store.set(TT_KEY, JSON.stringify(s)); }
+
+function timeToMins(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function minsToTime(m) {
+  return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+}
+
+function slotDuration(s) {
+  return (timeToMins(s.end) - timeToMins(s.start)) / 60;
+}
+
+/* ── Color picker ── */
+document.querySelectorAll('.color-opt').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedColor = el.dataset.color;
+  });
+});
+
+/* ── Render timetable grid ── */
+function render() {
+  const slots   = getSlots();
+  const grid    = document.getElementById('tt-grid');
+  const todayDow = new Date().getDay();
+
+  // Build grid: rows = time slots (6am-10pm every 30 mins), cols = days
+  const START = 6 * 60;  // 6:00 AM
+  const END   = 22 * 60; // 10:00 PM
+  const STEP  = 60;
+
+  let html = `<div class="tt-head"><div class="tt-time-col"></div>`;
+  DAYS_SHORT.forEach((d, i) => {
+    html += `<div class="tt-day-head${i === todayDow ? ' today' : ''}">${d}</div>`;
+  });
+  html += `</div>`;
+
+  for (let t = START; t < END; t += STEP) {
+    html += `<div class="tt-row">`;
+    html += `<div class="tt-time">${minsToTime(t)}</div>`;
+    for (let d = 0; d < 7; d++) {
+      // find slots that start in this hour for this day
+      const cellSlots = slots.filter(s =>
+        parseInt(s.day) === d &&
+        timeToMins(s.start) >= t &&
+        timeToMins(s.start) < t + STEP
+      );
+      html += `<div class="tt-cell" onclick="openAddSlotForDay(${d}, '${minsToTime(t)}')">`;
+      cellSlots.forEach(s => {
+        const dur = slotDuration(s);
+        html += `
+          <div class="tt-slot" style="background:${s.color}22;border-left:3px solid ${s.color};"
+               onclick="event.stopPropagation(); editSlot('${s.id}')">
+            <strong>${s.subject}</strong>
+            <small>${s.start}–${s.end}</small>
+            ${s.notes ? `<small>${s.notes}</small>` : ''}
+            <button class="tt-del-btn" onclick="event.stopPropagation(); openDeleteSlot('${s.id}')">✕</button>
+          </div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  grid.innerHTML = html;
+
+  // Today's schedule
+  const todaySlots = slots
+    .filter(s => parseInt(s.day) === todayDow)
+    .sort((a, b) => timeToMins(a.start) - timeToMins(b.start));
+
+  const todayEl = document.getElementById('today-schedule');
+  const todayTitle = document.getElementById('today-schedule-title');
+  todayTitle.textContent = `📋 ${DAYS[todayDow]}'s Schedule`;
+
+  todayEl.innerHTML = todaySlots.length
+    ? todaySlots.map(s => `
+        <div class="study-task">
+          <div>
+            <strong>${s.subject}</strong>
+            <small>${s.start} – ${s.end}${s.notes ? ' · ' + s.notes : ''}</small>
+          </div>
+          <span style="font-size:0.78rem;color:var(--muted);">${slotDuration(s).toFixed(1)}h</span>
+        </div>`).join('')
+    : `<div class="study-empty">Nothing scheduled for today</div>`;
+
+  // Stats
+  const totalHrs = slots.reduce((acc, s) => acc + slotDuration(s), 0);
+  const subjects  = [...new Set(slots.map(s => s.subject))];
+  document.getElementById('total-slots').textContent    = slots.length;
+  document.getElementById('total-hours').textContent    = totalHrs.toFixed(1) + 'h';
+  document.getElementById('subjects-count').textContent = subjects.length;
+  document.getElementById('today-slots').textContent    = todaySlots.length;
+}
+
+/* ── Modal ── */
+function openAddSlot() {
+  editingSlotId = null;
+  document.getElementById('slot-modal-title').textContent = 'Add Study Slot';
+  document.getElementById('slot-subject').value = '';
+  document.getElementById('slot-day').value     = new Date().getDay();
+  document.getElementById('slot-start').value   = '09:00';
+  document.getElementById('slot-end').value     = '10:00';
+  document.getElementById('slot-notes').value   = '';
+  selectedColor = '#7c5cff';
+  document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('selected'));
+  document.querySelector('.color-opt[data-color="#7c5cff"]').classList.add('selected');
+  document.getElementById('slot-modal').classList.add('open');
+}
+
+function openAddSlotForDay(day, time) {
+  openAddSlot();
+  document.getElementById('slot-day').value   = day;
+  document.getElementById('slot-start').value = time;
+  const endMins = timeToMins(time) + 60;
+  document.getElementById('slot-end').value   = minsToTime(Math.min(endMins, 22 * 60));
+}
+
+function editSlot(id) {
+  const s = getSlots().find(x => x.id === id);
+  if (!s) return;
+  editingSlotId = id;
+  document.getElementById('slot-modal-title').textContent = 'Edit Slot';
+  document.getElementById('slot-subject').value = s.subject;
+  document.getElementById('slot-day').value     = s.day;
+  document.getElementById('slot-start').value   = s.start;
+  document.getElementById('slot-end').value     = s.end;
+  document.getElementById('slot-notes').value   = s.notes || '';
+  selectedColor = s.color || '#7c5cff';
+  document.querySelectorAll('.color-opt').forEach(e => {
+    e.classList.toggle('selected', e.dataset.color === selectedColor);
+  });
+  document.getElementById('slot-modal').classList.add('open');
+}
+
+function closeSlotModal() { document.getElementById('slot-modal').classList.remove('open'); }
+
+function saveSlot() {
+  const subject = document.getElementById('slot-subject').value.trim();
+  const day     = document.getElementById('slot-day').value;
+  const start   = document.getElementById('slot-start').value;
+  const end     = document.getElementById('slot-end').value;
+  const notes   = document.getElementById('slot-notes').value.trim();
+
+  if (!subject || !start || !end) { alert('Please fill in Subject, Start, and End time'); return; }
+  if (timeToMins(start) >= timeToMins(end)) { alert('End time must be after start time'); return; }
+
+  const slots = getSlots();
+  if (editingSlotId) {
+    const i = slots.findIndex(s => s.id === editingSlotId);
+    if (i > -1) Object.assign(slots[i], { subject, day, start, end, notes, color: selectedColor });
+  } else {
+    slots.push({ id: Date.now().toString(), subject, day, start, end, notes, color: selectedColor });
+  }
+  saveSlots(slots);
+  closeSlotModal();
+  render();
+}
+
+function openDeleteSlot(id) {
+  deletingSlotId = id;
+  document.getElementById('slot-delete-modal').classList.add('open');
+}
+function closeDeleteSlot() { document.getElementById('slot-delete-modal').classList.remove('open'); }
+function confirmDeleteSlot() {
+  saveSlots(getSlots().filter(s => s.id !== deletingSlotId));
+  closeDeleteSlot();
+  render();
+}
+
+document.getElementById('add-slot-btn').addEventListener('click', openAddSlot);
+render();
+</script>
+</body>
+</html>

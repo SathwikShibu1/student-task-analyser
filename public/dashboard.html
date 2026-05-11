@@ -1,116 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <title>
-    Dashboard – Student Task Analyser
-  </title>
-
-  <link
-    rel="stylesheet"
-    href="/css/styles.css"
-  />
-
-  <link
-    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css"
-    rel="stylesheet"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Student Task Analyser</title>
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
-
 <body>
-
 <div class="app-layout">
 
   <!-- SIDEBAR -->
-  <aside
-    class="sidebar"
-    id="sidebar"
-  >
-
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-
-      <div class="logo-icon">
-        📚
-      </div>
-
-      <span>
-        TaskAnalyser
-      </span>
-
+      <div class="logo-icon">📚</div>
+      <span>TaskAnalyser</span>
     </div>
-
     <nav>
-
-      <a
-        href="/dashboard.html"
-        class="nav-link active"
-      >
-        🏠 Dashboard
-      </a>
-
-      <a
-        href="#"
-        class="nav-link"
-        id="add-task-link"
-      >
-        ➕ Add Task
-      </a>
-
-      <a
-        href="/profile.html"
-        class="nav-link"
-      >
-        👤 Profile
-      </a>
-
+      <a href="/dashboard.html" class="nav-link active">🏠 Dashboard</a>
+      <a href="#" class="nav-link" id="add-task-link">➕ Add Task</a>
+      <a href="/habits.html" class="nav-link">✅ Habits</a>
+      <a href="/timetable.html" class="nav-link">🗓 Timetable</a>
+      <a href="/profile.html" class="nav-link">👤 Profile</a>
     </nav>
-
     <div class="sidebar-bottom">
-
       <div class="user-info">
-
-        <div
-          class="user-avatar"
-          id="avatar"
-        >
-          ?
-        </div>
-
-        <span
-          class="user-name"
-          id="user-name"
-        >
-          User
-        </span>
-
+        <div class="user-avatar" id="avatar">?</div>
+        <span class="user-name" id="user-name">User</span>
       </div>
-
-      <a
-        href="#"
-        class="nav-link"
-        id="logout-btn"
-      >
-        🚪 Logout
-      </a>
-
-      <button
-        class="theme-toggle"
-        id="theme-toggle"
-      >
-        🌙
-      </button>
-
+      <a href="#" class="nav-link" id="logout-btn">🚪 Logout</a>
+      <button class="theme-toggle" id="theme-toggle">🌙</button>
     </div>
-
   </aside>
 
   <!-- MAIN -->
@@ -118,501 +37,201 @@
 
     <!-- TOPBAR -->
     <header class="topbar">
-
       <div class="topbar-left">
-
-        <button
-          class="hamburger"
-          id="hamburger"
-        >
-          ☰
-        </button>
-
+        <button class="hamburger" id="hamburger">☰</button>
         <div>
-
-          <h1>
-            My Tasks
-          </h1>
-
-          <p>
-            Manage your study flow efficiently.
-          </p>
-
+          <h1>My Tasks</h1>
+          <p>Manage your study flow efficiently.</p>
         </div>
-
       </div>
-
-      <button
-        class="btn btn-primary"
-        id="add-task-btn"
-      >
-        ➕ Add Task
-      </button>
-
+      <button class="btn btn-primary" id="add-task-btn">➕ Add Task</button>
     </header>
 
-    <!-- QUICK STATS -->
+    <!-- QUICK STATS — XP & Streak removed, replaced with Overdue & Focus Time -->
     <section class="quick-stats">
-
       <div class="mini-stat">
-
-        <span>🔥</span>
-
-        <div>
-
-          <strong id="streak-count">
-            0
-          </strong>
-
-          <small>
-            Streak
-          </small>
-
-        </div>
-
-      </div>
-
-      <div class="mini-stat">
-
-        <span>⭐</span>
-
-        <div>
-
-          <strong id="xp-count">
-            0
-          </strong>
-
-          <small>
-            XP
-          </small>
-
-        </div>
-
-      </div>
-
-      <div class="mini-stat">
-
         <span>📋</span>
-
         <div>
-
-          <strong id="stat-total">
-            0
-          </strong>
-
-          <small>
-            Tasks
-          </small>
-
+          <strong id="stat-total">0</strong>
+          <small>Total Tasks</small>
         </div>
-
       </div>
-
       <div class="mini-stat">
-
         <span>✅</span>
-
         <div>
-
-          <strong id="stat-completed">
-            0
-          </strong>
-
-          <small>
-            Done
-          </small>
-
+          <strong id="stat-completed">0</strong>
+          <small>Completed</small>
         </div>
-
       </div>
-
+      <div class="mini-stat">
+        <span>⚠️</span>
+        <div>
+          <strong id="stat-overdue">0</strong>
+          <small>Overdue</small>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <span>⏱</span>
+        <div>
+          <strong id="stat-focus">0h</strong>
+          <small>Focus Time</small>
+        </div>
+      </div>
     </section>
 
     <!-- FILTERS -->
     <section class="filters-bar">
-
-      <input
-        type="text"
-        id="search"
-        placeholder="🔍 Search tasks..."
-      />
-
+      <input type="text" id="search" placeholder="🔍 Search tasks..." />
       <select id="filter-subject">
-
-        <option value="">
-          All Subjects
-        </option>
-
+        <option value="">All Subjects</option>
       </select>
-
       <select id="filter-status">
-
-        <option value="">
-          All Status
-        </option>
-
-        <option value="Pending">
-          Pending
-        </option>
-
-        <option value="Completed">
-          Completed
-        </option>
-
+        <option value="">All Status</option>
+        <option value="Pending">Pending</option>
+        <option value="Completed">Completed</option>
+        <option value="Overdue">Overdue</option>
       </select>
-
     </section>
 
     <!-- MAIN GRID -->
     <section class="dashboard-grid">
-
       <!-- TASKS -->
       <div class="tasks-section">
-
-        <div
-          id="task-list"
-          class="task-list"
-        >
-
+        <div id="task-list" class="task-list">
           <div class="empty-state">
-
-            <div class="empty-icon">
-              📭
-            </div>
-
-            <h3>
-              Loading tasks...
-            </h3>
-
+            <div class="empty-icon">📭</div>
+            <h3>Loading tasks...</h3>
           </div>
-
         </div>
-
       </div>
 
       <!-- SIDE PANEL -->
       <div class="side-panel">
-
-        <!-- ANALYTICS -->
         <div class="analytics-card">
-
-          <h3>
-            📈 Weekly Study
-          </h3>
-
+          <h3>📈 Completion</h3>
           <canvas id="weeklyChart"></canvas>
-
         </div>
-
         <div class="analytics-card">
-
-          <h3>
-            📚 Subjects
-          </h3>
-
+          <h3>📚 By Subject</h3>
           <canvas id="subjectChart"></canvas>
-
         </div>
-
       </div>
-
     </section>
 
-<!-- SMART STUDY PANEL -->
-<section class="calendar-section">
+    <!-- SMART STUDY PANEL -->
+    <section class="calendar-section">
+      <div class="study-panel-grid">
 
-  <div class="study-panel-grid">
-
-    <!-- UPCOMING -->
-    <div class="study-card">
-
-      <div class="study-card-header">
-
-        <h3>
-          📅 Upcoming Deadlines
-        </h3>
-
-      </div>
-
-      <div
-        id="upcoming-list"
-        class="study-list"
-      >
-
-        <div class="study-empty">
-          No upcoming tasks
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- TODAY -->
-    <div class="study-card">
-
-      <div class="study-card-header">
-
-        <h3>
-          ⚡ Due Today
-        </h3>
-
-      </div>
-
-      <div
-        id="today-list"
-        class="study-list"
-      >
-
-        <div class="study-empty">
-          Nothing due today 🎉
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- INSIGHTS -->
-    <div class="study-card">
-
-      <div class="study-card-header">
-
-        <h3>
-          📊 Study Insights
-        </h3>
-
-      </div>
-
-      <div class="insight-grid">
-
-        <div class="insight-item">
-
-          <span>
-            🔥
-          </span>
-
-          <div>
-
-            <strong id="focus-hours">
-              0h
-            </strong>
-
-            <small>
-              Focus Time
-            </small>
-
+        <!-- UPCOMING DEADLINES -->
+        <div class="study-card">
+          <div class="study-card-header">
+            <h3>📅 Upcoming Deadlines</h3>
           </div>
-
+          <div id="upcoming-list" class="study-list">
+            <div class="study-empty">No upcoming tasks</div>
+          </div>
         </div>
 
-        <div class="insight-item">
-
-          <span>
-            📚
-          </span>
-
-          <div>
-
-            <strong id="top-subject">
-              None
-            </strong>
-
-            <small>
-              Top Subject
-            </small>
-
+        <!-- DUE TODAY -->
+        <div class="study-card">
+          <div class="study-card-header">
+            <h3>⚡ Due Today</h3>
           </div>
-
+          <div id="today-list" class="study-list">
+            <div class="study-empty">Nothing due today 🎉</div>
+          </div>
         </div>
 
-        <div class="insight-item">
-
-          <span>
-            ⏳
-          </span>
-
-          <div>
-
-            <strong id="pending-count">
-              0
-            </strong>
-
-            <small>
-              Pending Tasks
-            </small>
-
+        <!-- STUDY INSIGHTS -->
+        <div class="study-card">
+          <div class="study-card-header">
+            <h3>📊 Study Insights</h3>
           </div>
-
+          <div class="insight-grid">
+            <div class="insight-item">
+              <span>⏱</span>
+              <div>
+                <strong id="focus-hours">0h</strong>
+                <p>Focus Time</p>
+              </div>
+            </div>
+            <div class="insight-item">
+              <span>📚</span>
+              <div>
+                <strong id="top-subject">None</strong>
+                <p>Top Subject</p>
+              </div>
+            </div>
+            <div class="insight-item">
+              <span>⏳</span>
+              <div>
+                <strong id="pending-count">0</strong>
+                <p>Pending Tasks</p>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
+    </section>
 
-    </div>
-
-  </div>
-
-</section>
+  </main>
+</div>
 
 <!-- TASK MODAL -->
-<div
-  class="modal-overlay"
-  id="task-modal"
->
-
+<div class="modal-overlay" id="task-modal">
   <div class="modal">
-
     <div class="modal-header">
-
-      <h3 id="modal-title">
-        Add Task
-      </h3>
-
-      <button
-        class="modal-close"
-        id="modal-close"
-      >
-        ✕
-      </button>
-
+      <h3 id="modal-title">Add Task</h3>
+      <button class="modal-close" id="modal-close">✕</button>
     </div>
-
     <div class="form-group">
-
-      <label>
-        Task Title
-      </label>
-
-      <input
-        type="text"
-        id="task-title"
-      />
-
+      <label>Task Title *</label>
+      <input type="text" id="task-title" placeholder="e.g. Complete Math assignment" />
     </div>
-
     <div class="form-group">
-
-      <label>
-        Subject
-      </label>
-
-      <input
-        type="text"
-        id="task-subject"
-      />
-
+      <label>Subject *</label>
+      <input type="text" id="task-subject" placeholder="e.g. Mathematics" />
     </div>
-
     <div class="form-group">
-
-      <label>
-        Description
-      </label>
-
-      <textarea id="task-desc"></textarea>
-
+      <label>Description</label>
+      <textarea id="task-desc" rows="3" placeholder="Optional notes..."></textarea>
     </div>
-
     <div class="form-group">
-
-      <label>
-        Deadline
-      </label>
-
-      <input
-        type="date"
-        id="task-deadline"
-      />
-
+      <label>Deadline *</label>
+      <input type="date" id="task-deadline" />
     </div>
-
     <div class="form-group">
-
-      <label>
-        Priority
-      </label>
-
+      <label>Priority</label>
       <select id="task-priority">
-
-        <option value="High">
-          High
-        </option>
-
-        <option value="Medium">
-          Medium
-        </option>
-
-        <option value="Low">
-          Low
-        </option>
-
+        <option value="High">🔴 High</option>
+        <option value="Medium" selected>🟡 Medium</option>
+        <option value="Low">🟢 Low</option>
       </select>
-
     </div>
-
     <div class="modal-footer">
-
-      <button
-        class="btn btn-secondary"
-        id="modal-cancel"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="btn btn-primary"
-        id="modal-save"
-      >
-        Save
-      </button>
-
+      <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="modal-save">Save Task</button>
     </div>
-
   </div>
-
 </div>
 
 <!-- DELETE MODAL -->
-<div
-  class="modal-overlay"
-  id="delete-modal"
->
-
+<div class="modal-overlay" id="delete-modal">
   <div class="modal">
-
-    <h3>
-      Delete Task?
-    </h3>
-
-    <p>
-      This action cannot be undone.
-    </p>
-
-    <div class="modal-footer">
-
-      <button
-        class="btn btn-secondary"
-        id="delete-cancel"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="btn btn-danger"
-        id="delete-confirm"
-      >
-        Delete
-      </button>
-
+    <div class="modal-header">
+      <h3>Delete Task?</h3>
+      <button class="modal-close" id="delete-close">✕</button>
     </div>
-
+    <p style="color:var(--muted);margin-bottom:1rem;">This action cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="delete-confirm">Delete</button>
+    </div>
   </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-
 <script src="/js/dashboard.js"></script>
-
 </body>
 </html>
